@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <title>Document</title>
+  </head>
+  <body>
+
+  {% block content %}
+      {% load static %}
+      <h1>List of books:</h1>
+    <ol class="list">
+    </ol>
+
+      <ol>
+      {% for book in books_list%}
+       <li>
+           Title: {{book.title}} <br>
+        {% if book.authors.all %}
+           Author:
+           {%  for author in  book.authors.all%}
+           {{author.name}}
+           {% endfor %} <br>
+        {% endif %}
+           Pulish date: {{book.published_date}}  <br>
+           Categories: {{book.categories.name}}  <br>
+           Avg rating: {{book.average_rating}} <br>
+           Ratings count: {{book.ratings_count}}  <br>
+           Thumbnail:  <a href= {{book.thumbnail}}>{{book.thumbnail}}</a>
+       </li>
+      {% endfor %}
+      </ol>
+      {{ all }}
+  {% endblock %}
+
+  </body>
+
+<!--<script src="{% static "js/app.js" %}" ></script>-->
+</html>
+
