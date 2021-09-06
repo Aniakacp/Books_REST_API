@@ -7,31 +7,93 @@
 
   {% block content %}
       {% load static %}
+      <form method="post">
+      {% csrf_token %}
       <h1>List of books:</h1>
+      <input type="button" value="View list in JSON" onclick="location.href='/books/'">
+      <input type="button" value="Filter" onclick="location.href='/books/?published_date=1995'">
+      <input type="button" value="Sort" onclick="location.href='/books/?sort=published_date'">
     <ol class="list">
-    </ol>
-
-      <ol>
       {% for book in books_list%}
        <li>
-           Title: {{book.title}} <br>
-        {% if book.authors.all %}
-           Author:
-           {%  for author in  book.authors.all%}
-           {{author.name}}
-           {% endfor %} <br>
-        {% endif %}
-           Pulish date: {{book.published_date}}  <br>
-           Categories: {{book.categories.name}}  <br>
-           Avg rating: {{book.average_rating}} <br>
-           Ratings count: {{book.ratings_count}}  <br>
-           Thumbnail:  <a href= {{book.thumbnail}}>{{book.thumbnail}}</a>
+       <table>
+           <tr>
+               <th>
+                   Title
+               </th>
+               <td>
+                   {{book.title}}
+               </td>
+               <td>
+                   <input type="button" value="Edit/Update book" onclick="location.href='/books/{{book.id}}'">
+               </td>
+           </tr>
+           <tr>
+               <th>
+                   {% if book.authors.all %}
+                   Author
+                   {% endif %}
+               </th>
+               <td>
+                   {% if book.authors.all %}
+                    {%  for author in  book.authors.all%}
+                    {{author.name}}
+                    {% endfor %}
+                    {% endif %}
+               </td>
+           <td></td>
+           </tr>
+       <tr>
+               <th>
+                   {% if book.categories.all %}
+                   Categories
+                   {% endif %}
+               </th>
+               <td>
+                   {% if book.categories.all %}
+                    {%  for cat in  book.categories.all%}
+                    {{cat.name}}
+                    {% endfor %}
+                    {% endif %}
+               </td>
+       <td></td>
+           </tr>
+       <tr>
+               <th>
+                   Avg rating
+               </th>
+               <td>
+                   {{book.average_rating}}
+               </td>
+           <td></td>
+           </tr>
+       <tr>
+               <th>
+                   Ratings count
+               </th>
+               <td>
+                   {{book.ratings_count}}
+               </td>
+           <td></td>
+           </tr>
+       <tr>
+               <th>
+                   Thumbnail
+               </th>
+               <td>
+                   <a href= {{book.thumbnail}}>{{book.thumbnail}}</a>
+               </td>
+           <td></td>
+           </tr>
+       </table>
        </li>
       {% endfor %}
       </ol>
-      {{ all }}
+
   {% endblock %}
 
+  <input type="submit" value="Upload new data">
+  </form>
   </body>
 
 <!--<script src="{% static "js/app.js" %}" ></script>-->
