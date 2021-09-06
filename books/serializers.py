@@ -15,12 +15,12 @@ class CategoriesSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     authors = serializers.SlugRelatedField(
         many=True,
-        read_only=True,
+        queryset=Author.objects.all(),
         slug_field='name',
      )
     categories = serializers.SlugRelatedField(
         many=True,
-        read_only=True,
+        queryset=Categories.objects.all(),
         slug_field='name',
     )
 
@@ -28,5 +28,35 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ('title', 'authors', 'published_date', 'categories', 'average_rating', 'ratings_count', 'thumbnail', 'authors')
         extra_kwargs = {'authors': {'required': False}}
+
+    def create(self, validated_data):
+        authors_data = validated_data.pop('authors')
+        categories_data = validated_data.pop('categories')
+        book = Book.objects.create(**validated_data)
+        for author in authors_data:
+            Author.objects.create(**author)
+            #book.authors.add(author)
+        return book
+
+
+    def update(self, instance, validated_data):
+        if validated_data.get('authors'):
+            authors_data = validated_data.get('authors')
+            authors_serializer = AuthorSerializer(data=authors_data)
+
+            if authors_serializer.is_valid():
+                authors = authors_serializer.update(instance=instance.authors,
+                                                    validated_data=authors_serializer.validated_data)
+                validated_data['authors'] = authors
+        if validated_data.get('categories'):
+            categories_data = validated_data.get('categories')
+            categories_serializer = CategoriesSerializer(data=categories_data)
+
+            if categories_serializer.is_valid():
+                categories = categories_serializer.update(instance=instance.categories,
+                                                    validated_data=categories_serializer.validated_data)
+                validated_data['categories'] = categories
+
+        return super().update(instance, validated_data)
 
 
