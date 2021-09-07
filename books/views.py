@@ -1,26 +1,13 @@
-from datetime import datetime
 from urllib.request import urlopen
 import json
 
-import django_filters
-from django.http import JsonResponse
 from django.shortcuts import render
 
 from django.views import View
-from rest_framework import generics, viewsets, permissions, mixins
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from rest_framework.parsers import JSONParser
+from rest_framework import generics, mixins
 
 from books.models import Book, Categories, Author
 from books.serializers import BookSerializer
-#from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.auth.models import User
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework import filters
 
 def retrieve_json(link):
@@ -51,16 +38,14 @@ def update_upload(new_book, book):
             new_book.categories.add(Categories.objects.filter(name=cathegory).last())
     new_book.save()
 
-class BooksUploadView(View):
+class MainView(View):
     def get(self, request):
         books = retrieve_json('https://www.googleapis.com/books/v1/volumes?q=Hobbit')
         for book in books['items']:
             new_book= Book()
             update_upload(new_book, book)
         return render(request, 'books.html', {'books_list': Book.objects.all()})
-
-class BooksUpdateView(View):
-    def get(self, request):
+    def post(self, request):
         books = retrieve_json('https://www.googleapis.com/books/v1/volumes?q=war')
         new_book = Book.objects.all().first()
         for book in books['items']:
@@ -111,12 +96,4 @@ class BookFilterView3(generics.ListAPIView):  #http://127.0.0.1:8000/filter3/?or
     filter_backends=(filters.SearchFilter, filters.OrderingFilter)
     search_fields=['published_date', 'title', 'authors__name']  #http://127.0.0.1:8000/filter3/?search=1995
                                                                 #http://127.0.0.1:8000/filter3/?search=Tom%20Pendergast
-
-
-
-
-
-
-
-
 
